@@ -1,5 +1,15 @@
 language: python
 python: 3.6
+_aws_deplot_provider: &_aws_deploy_provider
+  edge: true
+  provider: lambda
+  function_name: "market-watch-telegram-set-webhook"
+  region: "eu-central-1"
+  role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
+  runtime: "python3.6"
+  timeout: 30
+  module_name: "market_watch.lambda_handlers"
+
 jobs:
   include:
     - stage: test
@@ -29,13 +39,3 @@ jobs:
 branches:
   only:
     - master
-
-_aws_deplot_provider: &_aws_deploy_provider
-  edge: true
-  provider: lambda
-  function_name: "market-watch-telegram-set-webhook"
-  region: "eu-central-1"
-  role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
-  runtime: "python3.6"
-  timeout: 30
-  module_name: "market_watch.lambda_handlers"
