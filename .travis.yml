@@ -1,9 +1,5 @@
 language: python
 python: 3.6
-deploy:
-  provider: lambda
-  # ⋮
-  edge: true
 jobs:
   include:
     - stage: test
@@ -11,6 +7,7 @@ jobs:
       script:
         - flake8 .
     - stage: deploy
+      edge: true
       provider: lambda
       function_name: "market-watch-crawler"
       region: "eu-central-1"
@@ -20,6 +17,7 @@ jobs:
       module_name: "market_watch.lambda_handlers"
       timeout: 30
     - stage: deploy
+      edge: true
       provider: lambda
       function_name: "market-watch-telegram-message-handler"
       region: "eu-central-1"
@@ -29,6 +27,7 @@ jobs:
       module_name: "market_watch.lambda_handlers"
       timeout: 30
     - stage: deploy
+      edge: true
       provider: lambda
       function_name: "market-watch-telegram-set-webhook"
       region: "eu-central-1"
@@ -38,6 +37,7 @@ jobs:
       module_name: "market_watch.lambda_handlers"
       timeout: 30
     - stage: deploy
+      edge: true
       provider: lambda
       function_name: "market-watch-notify"
       region: "eu-central-1"
