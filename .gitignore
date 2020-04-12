@@ -1,0 +1,4 @@
+**/__pycache
+*.pyc
+/test.py
+.DS_Store
