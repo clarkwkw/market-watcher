@@ -12,7 +12,7 @@ NON_SPACE_INPUT = "[^\\s]+"
 PRODUCT_SUBSCIBE_REGEX = f"^\\s*/{NON_SPACE_INPUT}\\s+(.*)$"
 
 
-class TelegramBot:
+class TelegramBotClient:
     def __init__(
         self,
         database: DatabaseTransport,
@@ -110,5 +110,4 @@ class TelegramBot:
             message += self.translator.translate(
                 MessageID.PRODUCT_NOTIFY_FOOTER
             )
-            print(message)
             self.send_message(tg_bot, user.chat_id, message)
