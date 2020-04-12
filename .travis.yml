@@ -7,46 +7,54 @@ jobs:
       script:
         - flake8 .
     - stage: deploy
-      edge: true
-      provider: lambda
-      function_name: "market-watch-crawler"
-      region: "eu-central-1"
-      role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
-      runtime: "python3.6"
-      handler_name: "crawl_products_handler"
-      module_name: "market_watch.lambda_handlers"
-      timeout: 30
+      name: "Deploy crawler"
+      deploy:
+        edge: true
+        provider: lambda
+        function_name: "market-watch-crawler"
+        region: "eu-central-1"
+        role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
+        runtime: "python3.6"
+        handler_name: "crawl_products_handler"
+        module_name: "market_watch.lambda_handlers"
+        timeout: 30
     - stage: deploy
-      edge: true
-      provider: lambda
-      function_name: "market-watch-telegram-message-handler"
-      region: "eu-central-1"
-      role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
-      runtime: "python3.6"
-      handler_name: "telegram_message_handler"
-      module_name: "market_watch.lambda_handlers"
-      timeout: 30
+      name: "Deploy Telegram message handler"
+      deploy:
+        edge: true
+        provider: lambda
+        function_name: "market-watch-telegram-message-handler"
+        region: "eu-central-1"
+        role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
+        runtime: "python3.6"
+        handler_name: "telegram_message_handler"
+        module_name: "market_watch.lambda_handlers"
+        timeout: 30
     - stage: deploy
-      edge: true
-      provider: lambda
-      function_name: "market-watch-telegram-set-webhook"
-      region: "eu-central-1"
-      role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
-      runtime: "python3.6"
-      handler_name: "telegram_webhook_configuration_handler"
-      module_name: "market_watch.lambda_handlers"
-      timeout: 30
+      name: "Deploy Telegram set webhook"
+      deploy:
+        edge: true
+        provider: lambda
+        function_name: "market-watch-telegram-set-webhook"
+        region: "eu-central-1"
+        role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
+        runtime: "python3.6"
+        handler_name: "telegram_webhook_configuration_handler"
+        module_name: "market_watch.lambda_handlers"
+        timeout: 30
     - stage: deploy
-      edge: true
-      provider: lambda
-      function_name: "market-watch-notify"
-      region: "eu-central-1"
-      role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
-      runtime: "python3.6"
-      handler_name: "product_update_handler"
-      module_name: "market_watch.lambda_handlers"
-      dead_letter_arn: "arn:aws:sqs:eu-central-1:480864162269:Market-Watch"
-      timeout: 30
+      name: "Deploy product update handler"
+      deploy:
+        edge: true
+        provider: lambda
+        function_name: "market-watch-notify"
+        region: "eu-central-1"
+        role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
+        runtime: "python3.6"
+        handler_name: "product_update_handler"
+        module_name: "market_watch.lambda_handlers"
+        dead_letter_arn: "arn:aws:sqs:eu-central-1:480864162269:Market-Watch"
+        timeout: 30
 branches:
   only:
     - master
