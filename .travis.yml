@@ -3,6 +3,8 @@ python: 3.6
 _aws_deplot_provider: &_aws_deploy_provider
   edge: true
   provider: lambda
+  access_key_id: ${AWS_ACCESS_KEY_ID}
+  secret_access_key: ${AWS_SECRET_ACCESS_KEY}
   function_name: "market-watch-telegram-set-webhook"
   region: "eu-central-1"
   role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
@@ -20,21 +22,25 @@ jobs:
       name: "Deploy crawler"
       deploy:
         <<: *_aws_deploy_provider
+        zip: "lambda_crawler.zip"
         handler_name: "crawl_products_handler"
     - stage: deploy
       name: "Deploy Telegram message handler"
       deploy:
         <<: *_aws_deploy_provider
+        zip: "lambda_tg_message_handler.zip"
         handler_name: "telegram_message_handler"
     - stage: deploy
       name: "Deploy Telegram set webhook"
       deploy:
         <<: *_aws_deploy_provider
+        zip: "lambda_tg_webhook_config_handler.zip"
         handler_name: "telegram_webhook_configuration_handler"
     - stage: deploy
       name: "Deploy product update handler"
       deploy:
         <<: *_aws_deploy_provider
+        zip: "lambda_product_update_handler.zip"
         handler_name: "product_update_handler"
 branches:
   only:
