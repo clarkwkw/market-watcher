@@ -1,11 +1,14 @@
 language: python
 python: 3.6
+services:
+  - docker
+
 _aws_deplot_provider: &_aws_deploy_provider
   edge: true
   provider: lambda
+  zip: "build/market-watch.zip"
   access_key_id: ${AWS_ACCESS_KEY_ID}
   secret_access_key: ${AWS_SECRET_ACCESS_KEY}
-  function_name: "market-watch-telegram-set-webhook"
   region: "eu-central-1"
   role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
   runtime: "python3.6"
@@ -18,30 +21,25 @@ jobs:
       install: pip install flake8==3.7.7 && pip install -r requirements.txt
       script:
         - flake8 .
-    - stage: deploy
-      name: "Deploy crawler"
+    - stage: build
+      name: "Package code and dependency into a zip file and deploy"
+      scripts:
+        - npm install -g serverless
+        - serverless plugin install -n serverless-python-requirements
+        - serverless package -p build
       deploy:
-        <<: *_aws_deploy_provider
-        zip: "lambda_crawler.zip"
-        handler_name: "crawl_products_handler"
-    - stage: deploy
-      name: "Deploy Telegram message handler"
-      deploy:
-        <<: *_aws_deploy_provider
-        zip: "lambda_tg_message_handler.zip"
-        handler_name: "telegram_message_handler"
-    - stage: deploy
-      name: "Deploy Telegram set webhook"
-      deploy:
-        <<: *_aws_deploy_provider
-        zip: "lambda_tg_webhook_config_handler.zip"
-        handler_name: "telegram_webhook_configuration_handler"
-    - stage: deploy
-      name: "Deploy product update handler"
-      deploy:
-        <<: *_aws_deploy_provider
-        zip: "lambda_product_update_handler.zip"
-        handler_name: "product_update_handler"
+        - *_aws_deploy_provider
+          handler_name: "crawl_products_handler"
+          function_name: "market-watch-crawler"
+        - *_aws_deploy_provider
+          handler_name: "telegram_message_handler"
+          function_name: "market-watch-telegram-bot"
+        - *_aws_deploy_provider
+          handler_name: "telegram_webhook_configuration_handler"
+          function_name: "market-watch-telegram-set-webhook"
+        - *_aws_deploy_provider
+          handler_name: "product_update_handler"
+          function_name: "market-watch-notify"
 branches:
   only:
     - master

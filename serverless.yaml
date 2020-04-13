@@ -1,0 +1,21 @@
+service: market-watch
+
+provider:
+  name: aws
+  runtime: python3.6
+
+package:
+  individually: false
+  include:
+    - market_watch/**
+    - config/**
+
+functions:
+  dummy:
+    handler: market_watch.lambda_handlers.crawl_products_handler
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
