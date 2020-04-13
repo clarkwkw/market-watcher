@@ -1,5 +1,7 @@
 language: python
 python: 3.6
+os: linux
+dist: xenial
 services:
   - docker
 
@@ -23,23 +25,23 @@ jobs:
         - flake8 .
     - stage: build
       name: "Package code and dependency into a zip file and deploy"
-      scripts:
+      script:
         - npm install -g serverless
         - serverless plugin install -n serverless-python-requirements
         - serverless package -p build
       deploy:
-        - *_aws_deploy_provider
-          handler_name: "crawl_products_handler"
+        - handler_name: "crawl_products_handler"
           function_name: "market-watch-crawler"
-        - *_aws_deploy_provider
-          handler_name: "telegram_message_handler"
+          <<: *_aws_deploy_provider
+        - handler_name: "telegram_message_handler"
           function_name: "market-watch-telegram-bot"
-        - *_aws_deploy_provider
-          handler_name: "telegram_webhook_configuration_handler"
+          <<: *_aws_deploy_provider
+        - handler_name: "telegram_webhook_configuration_handler"
           function_name: "market-watch-telegram-set-webhook"
-        - *_aws_deploy_provider
-          handler_name: "product_update_handler"
+          <<: *_aws_deploy_provider
+        - handler_name: "product_update_handler"
           function_name: "market-watch-notify"
+          <<: *_aws_deploy_provider
 branches:
   only:
     - master
