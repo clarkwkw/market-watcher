@@ -5,7 +5,7 @@ from .exceptions import InvalidInputException
 from .translator import MessageID
 
 
-SEPARATOR = re.compile(r"\s+")
+SEPARATOR = re.compile(r"[\s\n]+")
 
 
 def parse_product_list_input(input: str) -> List[ProductRef]:
