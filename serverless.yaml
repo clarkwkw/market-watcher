@@ -1,8 +1,50 @@
 service: market-watch
 
+_sqs_arn_prefix: &_sqs_arn_prefix
+  Fn::Join:
+    - ':'
+    - - arn
+      - aws
+      - sqs
+      - ${env:MARKET_WATCH_AWS_REGION_NAME}
+      - Ref: AWS::AccountId
+_sqs_arn_all: &_sqs_arn_all
+  Fn::Join:
+    - ':'
+    - - *_sqs_arn_prefix
+      - '*'
+
+_lambda_env: &_lambda_env
+  MARKET_WATCH_MONGO_URI: ${env:MARKET_WATCH_MONGO_URI}
+  MARKET_WATCH_MONGO_DB_NAME: ${env:MARKET_WATCH_MONGO_DB_NAME}
+  MARKET_WATCH_TG_TOKEN: ${env:MARKET_WATCH_TG_TOKEN}
+  MARKET_WATCH_WITHIN_LAMBDA: true
+  MARKET_WATCH_SQS_QUEUE_NAME: ${env:MARKET_WATCH_SQS_QUEUE_NAME}
+
+resources:
+  Resources:
+    SQS:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        QueueName: ${env:MARKET_WATCH_SQS_QUEUE_NAME}
+
 provider:
   name: aws
   runtime: python3.6
+  region: ${env:MARKET_WATCH_AWS_REGION_NAME}
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'sqs:SendMessage'
+        - 'sqs:GetQueueUrl'
+      Resource:
+        Fn::GetAtt:
+          - SQS
+          - Arn
+    - Effect: 'Allow'
+      Action:
+        - 'sqs:ListQueues'
+      Resource: *_sqs_arn_all
 
 package:
   individually: false
@@ -11,8 +53,30 @@ package:
     - config/**
 
 functions:
-  dummy:
+  market-watch-crawler:
     handler: market_watch.lambda_handlers.crawl_products_handler
+    environment: *_lambda_env
+    events:
+      - schedule: rate(5 minutes)
+  market-watch-telegram-bot:
+    handler: market_watch.lambda_handlers.telegram_message_handler
+    environment: *_lambda_env
+    events:
+      - http: POST /
+  market-watch-telegram-set-webhook:
+    handler: market_watch.lambda_handlers.telegram_webhook_configuration_handler
+    environment: *_lambda_env
+    events:
+      - http: POST /set-webhook
+  product_update_handler:
+    handler: market_watch.lambda_handlers.product_update_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - SQS
+              - Arn
+    environment: *_lambda_env
 
 plugins:
   - serverless-python-requirements

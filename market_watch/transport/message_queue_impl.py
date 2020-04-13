@@ -15,11 +15,10 @@ class MessageQueueImpl(MessageQueue):
                 aws_secret_access_key=config['sqs']['secret_key'],
             )
         else:
-            self.sqs_client = session.client(
-                'sqs',
-                region_name=config['sqs']['region_name'],
-            )
-        self.sqs_queue_url = config['sqs']["queue_url"]
+            self.sqs_client = session.client('sqs')
+        self.sqs_queue_url = self.sqs_client.get_queue_url(
+            QueueName=config['sqs']['queue_name']
+        )["QueueUrl"]
 
     def notify_updates(self, product_refs: List[ProductRef]):
         for pr in product_refs:
@@ -41,9 +40,10 @@ class MessageQueueImpl(MessageQueue):
     @classmethod
     def parse_sqs_notification(self, notification: dict) -> List[ProductRef]:
         product_refs = []
-        for record_dict in notification.get("records", []):
+        for record_dict in notification.get("Records", []):
             product_refs.append(ProductRef(
-                Platform(record_dict["messageAttributes"]["platform"]),
-                record_dict["messageAttributes"]["id"]
+                Platform(record_dict["messageAttributes"]
+                         ["platform"]["stringValue"]),
+                record_dict["messageAttributes"]["id"]["stringValue"]
             ))
         return product_refs

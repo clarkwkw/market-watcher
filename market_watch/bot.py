@@ -4,12 +4,30 @@ from typing import List
 from .models import User, ProductRef, ProductStatus
 from .transport import DatabaseTransport
 from .translator import Translator, MessageID
-from .exceptions import InvalidInputException
+from .exceptions import InvalidInputException, MWException
 from .crawlers import all_crawlers_map
 from . import utils
 
 NON_SPACE_INPUT = "[^\\s]+"
 PRODUCT_SUBSCIBE_REGEX = f"^\\s*/{NON_SPACE_INPUT}\\s+(.*)$"
+
+
+def handle_excpetion(func):
+    def wrapped(
+        bot_client: 'TelegramBotClient',
+        tg_update: telegram.Update,
+        tg_context: telegram.ext.CallbackContext
+    ):
+        try:
+            return func(bot_client, tg_update, tg_context)
+        except MWException as e:
+            bot_client.send_message(
+                tg_context.bot,
+                tg_update.message.chat.id,
+                e.exception_message,
+                **e.exception_message_args
+            )
+    return wrapped
 
 
 class TelegramBotClient:
@@ -37,7 +55,8 @@ class TelegramBotClient:
     ):
         tg_bot.send_message(
             chat_id,
-            self.translator.translate(message_id, **kwargs)
+            self.translator.translate(message_id, **kwargs),
+            parse_mode=telegram.ParseMode.HTML
         )
 
     def send_message_str(
@@ -46,7 +65,11 @@ class TelegramBotClient:
         chat_id: str,
         message: str
     ):
-        tg_bot.send_message(chat_id, message)
+        tg_bot.send_message(
+            chat_id,
+            message,
+            parse_mode=telegram.ParseMode.HTML
+        )
 
     def create_user(
         self,
@@ -56,6 +79,7 @@ class TelegramBotClient:
         user = self.get_or_create_user(tg_update.message.chat.id)
         self.send_message(tg_context.bot, user.chat_id, MessageID.HELLO)
 
+    @handle_excpetion
     def subscibe_product(
         self,
         tg_update: telegram.Update,
@@ -91,10 +115,11 @@ class TelegramBotClient:
                 if product_refs not in products:
                     continue
                 updated_product = products[product_refs]
-                if updated_product.status == ProductStatus.NOT_FOUND:
+                if updated_product.status == ProductStatus.NOT_FOUND\
+                        or updated_product.status == ProductStatus.UNKNOWN:
                     message += self.translator.translate(
                         MessageID.PRODUCT_NOTIFY_NOT_FOUND,
-                        platform=updated_product.product_ref.platform.value,
+                        platform=updated_product.platform.value,
                         id=updated_product.id
                     )
                 else:
@@ -103,11 +128,11 @@ class TelegramBotClient:
                     message += self.translator.translate(
                         MessageID.PRODUCT_NOTIFY_UPDATED,
                         url=url,
-                        platform=updated_product.platform,
+                        platform=updated_product.platform.value,
                         name=updated_product.name,
-                        status=updated_product.status
+                        status=updated_product.status.value
                     )
             message += self.translator.translate(
                 MessageID.PRODUCT_NOTIFY_FOOTER
             )
-            self.send_message(tg_bot, user.chat_id, message)
+            self.send_message_str(tg_bot, user.chat_id, message)

@@ -20,7 +20,10 @@ def telegram_message_handler(event, context, config=None):
     )
     if event.get('httpMethod') == 'POST' and event.get('body'):
 
-        update = telegram.Update.de_json(json.loads(event.get('body')), client)
+        update = telegram.Update.de_json(
+            json.loads(event.get('body')),
+            updater.bot
+        )
 
         updater.dispatcher.process_update(update)
 

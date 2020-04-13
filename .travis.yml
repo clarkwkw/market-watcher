@@ -5,50 +5,16 @@ dist: xenial
 services:
   - docker
 
-_aws_deplot_provider: &_aws_deploy_provider
-  edge: true
-  provider: lambda
-  zip: 'build/market-watch.zip'
-  access_key_id: ${AWS_ACCESS_KEY_ID}
-  secret_access_key: ${AWS_SECRET_ACCESS_KEY}
-  region: 'eu-central-1'
-  role: arn:aws:iam::480864162269:role/Market-Watch-Lambdas
-  runtime: 'python3.6'
-  timeout: 30
-  module_name: 'market_watch.lambda_handlers'
-  environment_variables:
-    - 'MARKET_WATCH_MONGO_URI="${MARKET_WATCH_MONGO_URI}"'
-    - 'MARKET_WATCH_MONGO_DB_NAME="${MARKET_WATCH_MONGO_DB_NAME}"'
-    - 'MARKET_WATCH_TG_TOKEN="${MARKET_WATCH_TG_TOKEN}"'
-    - 'MARKET_WATCH_WITHIN_LAMBDA=true'
-    - 'MARKET_WATCH_SQS_REGION_NAME="${MARKET_WATCH_SQS_REGION_NAME}"'
-    - 'MARKET_WATCH_SQS_QUEUE_URL="${MARKET_WATCH_SQS_QUEUE_URL}"'
-
 jobs:
   include:
     - stage: test
       install: pip install flake8==3.7.7 && pip install -r requirements.txt
       script:
         - flake8 .
-    - stage: build
+    - stage: deploy
       name: 'Package code and dependency into a zip file and deploy'
       script:
         - npm install -g serverless
         - serverless plugin install -n serverless-python-requirements
-        - serverless package -p build
-      deploy:
-        - handler_name: 'crawl_products_handler'
-          function_name: 'market-watch-crawler'
-          <<: *_aws_deploy_provider
-        - handler_name: 'telegram_message_handler'
-          function_name: 'market-watch-telegram-bot'
-          <<: *_aws_deploy_provider
-        - handler_name: 'telegram_webhook_configuration_handler'
-          function_name: 'market-watch-telegram-set-webhook'
-          <<: *_aws_deploy_provider
-        - handler_name: 'product_update_handler'
-          function_name: 'market-watch-notify'
-          <<: *_aws_deploy_provider
-branches:
-  only:
-    - master
+        - make serverless
+      if: branch = master

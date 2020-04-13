@@ -80,10 +80,12 @@ class DatabaseTransportImpl(DatabaseTransport):
             )
 
     def get_user(self, chat_id: str) -> Optional[User]:
-        doc = self.__mongo_client[self.db_name]["Users"].replace_one({
+        doc = self.__mongo_client[self.db_name]["Users"].find_one({
             'chat_id': chat_id
         })
-        return User.from_dict(doc)
+        if doc is not None:
+            return User.from_dict(doc)
+        return None
 
     def get_subscribed_users(
         self,
