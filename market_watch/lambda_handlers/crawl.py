@@ -18,7 +18,7 @@ def crawl_products_handler(event, context, config=None):
         config["mongo_db_name"]
     )
     http_transport = HTTPTransportImpl()
-    message_queue = MessageQueueImpl(config["sqs"])
+    message_queue = MessageQueueImpl(config)
     crawlers = {}
     for cls in all_crawlers:
         crawlers[cls.platform] = cls(http_transport)
