@@ -17,4 +17,5 @@ jobs:
         - npm install -g serverless
         - serverless plugin install -n serverless-python-requirements
         - make serverless
-      if: branch = master
+      on:
+        branch: master
