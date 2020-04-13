@@ -33,7 +33,7 @@ def telegram_webhook_configuration_handler(event, context, config=None):
     if config is None:
         config = construct_config_from_env()
 
-    _, updater = create_tg_updater(config["tg_token"])
+    updater = create_tg_updater(config["tg_token"])
     url = 'https://{}/{}/'.format(
         event.get('headers').get('Host'),
         event.get('requestContext').get('stage'),
