@@ -2,6 +2,7 @@
   "mongo_uri": "",
   "mongo_db_name": "",
   "tg_token": "",
+  "within_lambda": false,
   "sqs": {
     "region_name": "",
     "access_key": "",

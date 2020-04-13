@@ -5,15 +5,21 @@ from ..models import ProductRef, Platform
 
 
 class MessageQueueImpl(MessageQueue):
-    def __init__(self, sqs_config: dict):
+    def __init__(self, config: dict):
         session = boto3.session.Session()
-        self.sqs_client = session.client(
-            'sqs',
-            region_name=sqs_config['region_name'],
-            aws_access_key_id=sqs_config['access_key'],
-            aws_secret_access_key=sqs_config['secret_key'],
-        )
-        self.sqs_queue_url = sqs_config["queue_url"]
+        if not config['within_lambda']:
+            self.sqs_client = session.client(
+                'sqs',
+                region_name=config['sqs']['region_name'],
+                aws_access_key_id=config['sqs']['access_key'],
+                aws_secret_access_key=config['sqs']['secret_key'],
+            )
+        else:
+            self.sqs_client = session.client(
+                'sqs',
+                region_name=config['sqs']['region_name'],
+            )
+        self.sqs_queue_url = config['sqs']["queue_url"]
 
     def notify_updates(self, product_refs: List[ProductRef]):
         for pr in product_refs:

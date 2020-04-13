@@ -1,13 +1,13 @@
-import json
 from ..setup_bot import create_tg_bot_client
 from ..translator import Translator
 from ..transport import DatabaseTransportImpl, MessageQueueImpl
 from .response import OK_RESPONSE
+from ..config import construct_config_from_env
 
 
-def product_update_handler(event, context):
-    with open("config/config.json", "r") as f:
-        config = json.load(f)
+def product_update_handler(event, context, config=None):
+    if config is None:
+        config = construct_config_from_env()
 
     database = DatabaseTransportImpl(
         config["mongo_uri"],

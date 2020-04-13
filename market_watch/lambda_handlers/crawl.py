@@ -1,4 +1,3 @@
-import json
 from ..transport import (
     HTTPTransportImpl,
     DatabaseTransportImpl,
@@ -7,17 +6,19 @@ from ..transport import (
 from ..crawlers import all_crawlers
 from ..models import ProductStatus
 from .response import OK_RESPONSE
+from ..config import construct_config_from_env
 
 
-def crawl_products_handler(event, context):
-    with open("config/config.json", "r") as f:
-        config_dict = json.load(f)
+def crawl_products_handler(event, context, config=None):
+    if config is None:
+        config = construct_config_from_env()
+
     db_transport = DatabaseTransportImpl(
-        config_dict["mongo_uri"],
-        config_dict["mongo_db_name"]
+        config["mongo_uri"],
+        config["mongo_db_name"]
     )
     http_transport = HTTPTransportImpl()
-    message_queue = MessageQueueImpl(config_dict["sqs"])
+    message_queue = MessageQueueImpl(config["sqs"])
     crawlers = {}
     for cls in all_crawlers:
         crawlers[cls.platform] = cls(http_transport)
