@@ -1,5 +1,5 @@
 serverless:
-	$(eval SET_WEBHOOK_ADDRESS=$(shell serverless deploy --aws_profile | tee /dev/tty | grep -o "https://.*/set_webhook"))
+	$(eval SET_WEBHOOK_ADDRESS=$(shell serverless deploy --aws_profile | tee /dev/tty | grep -o "https://.*/set-webhook"))
 	curl -X POST $(SET_WEBHOOK_ADDRESS)
 
 clean:
