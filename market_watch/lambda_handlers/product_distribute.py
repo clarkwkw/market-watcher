@@ -3,6 +3,7 @@ from ..transport import MessageQueueImpl, DatabaseTransportImpl
 from .response import OK_RESPONSE
 from ..config import construct_config_from_env
 from ..utils import configure_logger
+from ..models import ProductStatus
 
 configure_logger()
 logger = logging.getLogger(__name__)
@@ -22,6 +23,9 @@ def distribute_products_handler(event, context, config=None):
     )
     products = db_transport.get_all_subscribed_products()
     logging.info(f"Retrieved {len(products)} products.")
+    products = [p for p in products if p.status != ProductStatus.NOT_FOUND]
+    logging.info(f"Remaining {len(products)} products after "
+                 "filitering out previously not found ones.")
     message_queue.enqueue(products)
     logging.info(f"Enqueued.")
     return OK_RESPONSE
