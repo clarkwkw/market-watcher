@@ -42,7 +42,6 @@ def crawl_products_handler(event, context, config=None):
     updated_products = []
     for p in products:
         updated = crawlers[p.platform].get_product(p.id)
-        updated_products.append(updated)
         if p.status != updated.status:
             # preserve original name if blocked marketplace
             updated.name = updated.name if len(updated.name) else p.name
