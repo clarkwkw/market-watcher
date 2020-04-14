@@ -11,6 +11,5 @@ def construct_config_from_env() -> dict:
             "region_name":  os.environ.get("MARKET_WATCH_SQS_REGION_NAME", ""),
             "access_key":   os.environ.get("MARKET_WATCH_SQS_ACCESS_KEY", ""),
             "secret_key":   os.environ.get("MARKET_WATCH_SQS_SECRET_KEY", ""),
-            "queue_name":   os.environ.get("MARKET_WATCH_SQS_QUEUE_NAME", ""),
         }
     }

@@ -17,7 +17,7 @@ def create_tg_bot_client(
         client.create_user
     ))
     updater.dispatcher.add_handler(MessageHandler(
-        Filters.regex(re.compile(r"^\s*/subscribe(\s.*)?$")),
+        Filters.regex(re.compile(r"^\s*/subscribe([\s\n].*)?$", re.DOTALL)),
         client.subscibe_product
     ))
     return client, updater

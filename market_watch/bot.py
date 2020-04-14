@@ -1,15 +1,14 @@
-import re
 import telegram
 from typing import List
 from .models import User, ProductRef, ProductStatus
 from .transport import DatabaseTransport
 from .translator import Translator, MessageID
-from .exceptions import InvalidInputException, MWException
+from .exceptions import MWException
 from .crawlers import all_crawlers_map
 from . import utils
 
 NON_SPACE_INPUT = "[^\\s]+"
-PRODUCT_SUBSCIBE_REGEX = f"^\\s*/{NON_SPACE_INPUT}\\s+(.*)$"
+PRODUCT_SUBSCIBE_REGEX = f"^\\s*/{NON_SPACE_INPUT}\\s+(.*)"
 
 
 def handle_excpetion(func):
@@ -86,16 +85,18 @@ class TelegramBotClient:
         tg_context: telegram.ext.CallbackContext
     ):
         user = self.get_or_create_user(tg_update.message.chat.id)
-        match = re.match(PRODUCT_SUBSCIBE_REGEX, tg_update.message.text)
-        if match is None:
-            raise InvalidInputException(MessageID.INVALID_PRODUCT_LIST_FORMAT)
-        product_refs = utils.parse_product_list_input(match.group(1))
+        product_refs = utils.parse_product_list_input(
+            tg_context.matches[0].group(1)
+        )
+        n_subscribed = 0
         for pr in product_refs:
             if pr not in user.subscribed:
+                n_subscribed += 1
                 user.subscribed.append(pr)
         self.database.save_user(user)
         self.send_message(tg_context.bot, user.chat_id,
-                          MessageID.PRODUCT_SUBSCRIBED)
+                          MessageID.PRODUCT_SUBSCRIBED,
+                          n_subscribed=n_subscribed)
 
     def notify_status_update(
         self,

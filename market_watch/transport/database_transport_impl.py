@@ -58,7 +58,8 @@ class DatabaseTransportImpl(DatabaseTransport):
 
     def get_products_by_refs(
         self,
-        product_refs: List[ProductRef]
+        product_refs: List[ProductRef],
+        return_default_if_not_found=False
     ) -> List[Product]:
         result = self.__mongo_client[self.db_name]["Products"].find(
             {
@@ -67,7 +68,14 @@ class DatabaseTransportImpl(DatabaseTransport):
                 }
             },
         )
-        return [Product.from_dict(d) for d in result]
+        products = [Product.from_dict(d) for d in result]
+        if not return_default_if_not_found:
+            return products
+
+        for pr in product_refs:
+            if pr not in products:
+                products.append(Product(pr))
+        return products
 
     def save_products(self, products: List[Product]):
         for p in products:

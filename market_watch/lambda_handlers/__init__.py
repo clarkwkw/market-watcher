@@ -4,3 +4,4 @@ from .telegram import (
     telegram_webhook_configuration_handler
 )
 from .product_update import product_update_handler
+from .product_distribute import distribute_products_handler

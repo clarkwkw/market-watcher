@@ -1,10 +1,15 @@
 import json
 import telegram
+import logging
 from ..setup_bot import create_tg_bot_client, create_tg_updater
 from ..transport import DatabaseTransportImpl
 from ..translator import Translator
 from .response import OK_RESPONSE, ERROR_RESPONSE
 from ..config import construct_config_from_env
+from ..utils import configure_logger
+
+configure_logger()
+logger = logging.getLogger(__name__)
 
 
 def telegram_message_handler(event, context, config=None):
@@ -41,6 +46,8 @@ def telegram_webhook_configuration_handler(event, context, config=None):
         event.get('headers').get('Host'),
         event.get('requestContext').get('stage'),
     )
+
+    logger.info(f"configuring webhook {url}")
     webhook = updater.bot.set_webhook(url)
 
     if webhook:

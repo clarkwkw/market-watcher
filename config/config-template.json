@@ -6,7 +6,6 @@
   "sqs": {
     "region_name": "",
     "access_key": "",
-    "secret_key": "",
-    "queue_url": ""
+    "secret_key": ""
   }
 }

@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import List
 from .models import ProductRef, Platform
@@ -26,3 +27,14 @@ def parse_product_list_input(input: str) -> List[ProductRef]:
             )
         product_refs.append(ProductRef(platform, product_id))
     return product_refs
+
+
+def configure_logger():
+    root = logging.getLogger()
+    if root.handlers:
+        for handler in root.handlers:
+            root.removeHandler(handler)
+    logging.basicConfig(
+        format='%(levelname)s - %(message)s',
+        level=logging.INFO
+    )

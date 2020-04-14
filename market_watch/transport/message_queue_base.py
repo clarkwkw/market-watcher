@@ -5,5 +5,9 @@ from ..models import ProductRef
 
 class MessageQueue(abc.ABC):
     @abc.abstractmethod
-    def notify_updates(self, product_refs: List[ProductRef]):
+    def enqueue(self, message_queue_items: List[ProductRef]):
+        pass
+
+    @abc.abstractclassmethod
+    def deserialize(self, d: dict) -> ProductRef:
         pass

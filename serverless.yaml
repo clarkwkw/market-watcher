@@ -19,14 +19,19 @@ _lambda_env: &_lambda_env
   MARKET_WATCH_MONGO_DB_NAME: ${env:MARKET_WATCH_MONGO_DB_NAME}
   MARKET_WATCH_TG_TOKEN: ${env:MARKET_WATCH_TG_TOKEN}
   MARKET_WATCH_WITHIN_LAMBDA: true
-  MARKET_WATCH_SQS_QUEUE_NAME: ${env:MARKET_WATCH_SQS_QUEUE_NAME}
 
 resources:
   Resources:
-    SQS:
+    ProductNotifyQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        QueueName: ${env:MARKET_WATCH_SQS_QUEUE_NAME}
+        QueueName: 'Market-Watch-Product-Notify'
+        VisibilityTimeout: 180
+    ProductDistributeQueue:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        QueueName: 'Market-Watch-Product-Distribute'
+        VisibilityTimeout: 180
 
 provider:
   name: aws
@@ -38,9 +43,12 @@ provider:
         - 'sqs:SendMessage'
         - 'sqs:GetQueueUrl'
       Resource:
-        Fn::GetAtt:
-          - SQS
-          - Arn
+        - Fn::GetAtt:
+            - ProductNotifyQueue
+            - Arn
+        - Fn::GetAtt:
+            - ProductDistributeQueue
+            - Arn
     - Effect: 'Allow'
       Action:
         - 'sqs:ListQueues'
@@ -57,7 +65,12 @@ functions:
     handler: market_watch.lambda_handlers.crawl_products_handler
     environment: *_lambda_env
     events:
-      - schedule: rate(5 minutes)
+      - sqs:
+          batchSize: 10
+          arn:
+            Fn::GetAtt:
+              - ProductDistributeQueue
+              - Arn
   market-watch-telegram-bot:
     handler: market_watch.lambda_handlers.telegram_message_handler
     environment: *_lambda_env
@@ -68,13 +81,18 @@ functions:
     environment: *_lambda_env
     events:
       - http: POST /set-webhook
+  product_distributor:
+    handler: market_watch.lambda_handlers.distribute_products_handler
+    environment: *_lambda_env
+    events:
+      - schedule: rate(5 minutes)
   product_update_handler:
     handler: market_watch.lambda_handlers.product_update_handler
     events:
       - sqs:
           arn:
             Fn::GetAtt:
-              - SQS
+              - ProductNotifyQueue
               - Arn
     environment: *_lambda_env
 
