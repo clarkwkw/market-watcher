@@ -22,8 +22,10 @@ class Product:
         p.status = ProductStatus(d.get("status", "UNKNOWN"))
         return p
 
-    def __eq__(self, other: 'Product'):
-        return self.product_ref == other.product_ref
+    def __eq__(self, other: object):
+        if isinstance(other, Product):
+            return self.product_ref == other.product_ref
+        return NotImplemented
 
     def to_dict(self) -> dict:
         return {

@@ -10,8 +10,10 @@ class ProductRef:
     def from_dict(cls, d: dict):
         return cls(d["platform"], d["id"])
 
-    def __eq__(self, other: 'ProductRef'):
-        return self.platform == other.platform and self.id == other.id
+    def __eq__(self, other: object):
+        if isinstance(other, ProductRef):
+            return self.platform == other.platform and self.id == other.id
+        return NotImplemented
 
     def __str__(self):
         return f"{self.platform}-{self.id}"

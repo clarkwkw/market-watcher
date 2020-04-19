@@ -1,5 +1,4 @@
 import enum
-from typing import Union
 
 
 class ProductStatus(enum.Enum):
@@ -8,7 +7,9 @@ class ProductStatus(enum.Enum):
     UNAVAILABLE = "UNAVAILABLE"
     NOT_FOUND = "NOT_FOUND"
 
-    def __eq__(self, other: Union[str, 'ProductStatus']):
+    def __eq__(self, other: object):
         if isinstance(other, ProductStatus):
             return self.value == other.value
-        return self.value.upper() == other.upper()
+        elif isinstance(other, str):
+            return self.value.upper() == other.upper()
+        return NotImplemented

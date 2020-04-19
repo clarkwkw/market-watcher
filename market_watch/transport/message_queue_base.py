@@ -9,5 +9,5 @@ class MessageQueue(abc.ABC):
         pass
 
     @abc.abstractclassmethod
-    def deserialize(self, d: dict) -> ProductRef:
+    def deserialize(self, d: dict) -> List[ProductRef]:
         pass

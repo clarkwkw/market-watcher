@@ -8,10 +8,11 @@ services:
 jobs:
   include:
     - stage: test
-      install: pip install flake8==3.7.7 && pip install -r requirements.txt && pip install -r requirements-test.txt
+      pip install -r requirements.txt && pip install -r requirements-test.txt
       script:
-        - flake8 .
-        - python -m pytest
+        - flake8 market_watch
+        - mypy --ignore-missing-imports market_watch
+        - python -m pytest market_watch
     - stage: deploy
       name: 'Package code and dependency into a zip file and deploy'
       script:

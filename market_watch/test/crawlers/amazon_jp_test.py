@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 from parameterized import parameterized
 from ...crawlers import AmazonJPCrawler
-from ...transport import HTTPTransportImpl
+from ...transport import HTTPTransport
 from ...models import ProductStatus, Platform
 
 
@@ -11,8 +11,8 @@ class TestAmazonJPCrawler(unittest.TestCase):
         output_html = ""
         with open(product_html_path, "r") as f:
             output_html = "\n".join(f.readlines())
-        transport = HTTPTransportImpl()
-        transport.get = MagicMock(return_value=output_html)
+        transport = MagicMock(spec=HTTPTransport)
+        transport.get.return_value = output_html
         return transport
 
     @parameterized.expand(

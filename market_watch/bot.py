@@ -1,6 +1,6 @@
 import telegram
 import telegram.ext
-from typing import List, Mapping
+from typing import List, Dict, Tuple, Any
 from .models import User, ProductRef, ProductStatus
 from .transport import DatabaseTransport
 from .translator import Translator, MessageID
@@ -63,11 +63,11 @@ class TelegramBotClient:
         self,
         tg_bot: telegram.Bot,
         chat_id: str,
-        messages: Mapping[MessageID, dict]
+        messages: List[Tuple[MessageID, Dict[str, Any]]]
     ):
         message_strs = [
             self.translator.translate(id, **kwargs)
-            for id, kwargs in messages.items()
+            for id, kwargs in messages
         ]
         tg_bot.send_message(
             chat_id,
@@ -115,14 +115,14 @@ class TelegramBotClient:
             self.database.get_products_by_refs(product_refs)
         }
         for user in subscribed_users:
-            messages = []
+            messages: List[Tuple[MessageID, Dict[str, Any]]] = []
             messages.append((
                 MessageID.PRODUCT_NOTIFY_HEADER, {}
             ))
-            for product_refs in user.subscribed:
-                if product_refs not in products:
+            for product_ref in user.subscribed:
+                if product_ref not in products:
                     continue
-                updated_product = products[product_refs]
+                updated_product = products[product_ref]
                 if updated_product.status == ProductStatus.NOT_FOUND\
                         or updated_product.status == ProductStatus.UNKNOWN:
                     messages.append((

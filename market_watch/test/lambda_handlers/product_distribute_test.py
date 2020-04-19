@@ -21,4 +21,4 @@ class TestProductDistribute(unittest.TestCase):
 
         _distribute_products(db_transport, message_queue)
 
-        message_queue.enqueue.assert_called_once_with([p_1, p_3])
+        message_queue.enqueue.assert_called_once_with([pr_1, pr_3])

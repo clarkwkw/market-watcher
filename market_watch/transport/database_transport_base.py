@@ -11,7 +11,8 @@ class DatabaseTransport(abc.ABC):
     @abc.abstractmethod
     def get_products_by_refs(
         self,
-        product_refs: List[ProductRef]
+        product_refs: List[ProductRef],
+        return_default_if_not_found: bool = False
     ) -> List[Product]:
         pass
 

@@ -35,7 +35,7 @@ def _crawl_products(
         return_default_if_not_found=True
     )
     logging.info(f"Retrieved {len(products)} products from database.")
-    products_to_notify = []
+    product_refs_to_notify = []
     updated_products = []
     for p in products:
         updated = crawlers[p.platform].get_product(p.id)
@@ -45,12 +45,12 @@ def _crawl_products(
             updated_products.append(updated)
             if updated.status == ProductStatus.AVAILABLE \
                     or updated.status == ProductStatus.NOT_FOUND:
-                products_to_notify.append(updated)
+                product_refs_to_notify.append(updated.product_ref)
 
     logging.info(f"Updated {len(updated_products)} products.")
-    logging.info(f"Going to notify {len(products_to_notify)} products.")
+    logging.info(f"Going to notify {len(product_refs_to_notify)} products.")
     db_transport.save_products(updated_products)
-    message_queue.enqueue(products_to_notify)
+    message_queue.enqueue(product_refs_to_notify)
 
 
 def crawl_products_handler(event, context, config):

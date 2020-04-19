@@ -24,7 +24,7 @@ def _distribute_products(
     products = [p for p in products if p.status != ProductStatus.NOT_FOUND]
     logging.info(f"Remaining {len(products)} products after "
                  "filitering out previously not found ones.")
-    message_queue.enqueue(products)
+    message_queue.enqueue([p.product_ref for p in products])
     logging.info(f"Enqueued.")
 
 

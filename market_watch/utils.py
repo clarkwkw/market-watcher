@@ -25,7 +25,7 @@ def parse_product_list_input(input: str) -> List[ProductRef]:
                     "platforms": platform
                 }
             )
-        product_refs.append(ProductRef(platform, product_id))
+        product_refs.append(ProductRef(Platform(platform), product_id))
     return product_refs
 
 

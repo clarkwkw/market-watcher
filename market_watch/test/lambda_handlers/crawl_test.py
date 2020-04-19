@@ -50,5 +50,5 @@ class TestCrawl(unittest.TestCase):
                 [p_1_updated, p_2_updated]
             )
             message_queue.enqueue.assert_called_once_with(
-                [p_1_updated, p_2_updated]
+                [pr_1, pr_2]
             )

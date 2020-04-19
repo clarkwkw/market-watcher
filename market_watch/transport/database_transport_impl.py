@@ -54,7 +54,7 @@ class DatabaseTransportImpl(DatabaseTransport):
     def get_products_by_refs(
         self,
         product_refs: List[ProductRef],
-        return_default_if_not_found=False
+        return_default_if_not_found: bool = False
     ) -> List[Product]:
         result = self.__mongo_client[self.db_name]["Products"].find(
             {
