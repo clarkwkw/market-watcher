@@ -1,4 +1,3 @@
-import ssl
 from typing import List, Optional
 import pymongo
 from .database_transport_base import DatabaseTransport
@@ -6,13 +5,9 @@ from ..models import Product, User, ProductRef, Platform
 
 
 class DatabaseTransportImpl(DatabaseTransport):
-    def __init__(self, uri: str, db_name: str):
-        self.uri = uri
+    def __init__(self, mongo_client: pymongo.MongoClient, db_name: str):
+        self.__mongo_client = mongo_client
         self.db_name = db_name
-        self.__mongo_client = pymongo.MongoClient(
-            uri,
-            ssl_cert_reqs=ssl.CERT_NONE
-        )
 
     def get_all_subscribed_products(self) -> List[Product]:
         default_product = Product(ProductRef(Platform.AMAZON_JP, ""))

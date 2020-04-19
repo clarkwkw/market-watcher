@@ -1,5 +1,5 @@
 from .crawl import crawl_products_handler
-from .telegram import (
+from .telegram_handler import (
     telegram_message_handler,
     telegram_webhook_configuration_handler
 )

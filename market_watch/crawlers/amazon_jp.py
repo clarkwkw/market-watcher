@@ -7,6 +7,7 @@ from ..transport import HTTPTransport
 PRODUCT_URL_BASE = "https://www.amazon.co.jp/dp/{product_id}/"
 PRODUCT_UNAVAILABLE_TEXT = "在庫切れ"
 PRODUCT_AVAILABLE_TEXT = "在庫あり"
+PRODUCT_RESERVABLE_TEXT = "出品者からお求めいただけます"
 NOT_FOUND_LINK = "/ref=cs_404_logo"
 
 
@@ -28,7 +29,8 @@ class AmazonJPCrawler(CrawlerBase):
                 product.name = product_name_span.text.strip()
             if PRODUCT_UNAVAILABLE_TEXT in availability_div.text:
                 product.status = ProductStatus.UNAVAILABLE
-            elif PRODUCT_AVAILABLE_TEXT in availability_div.text:
+            elif PRODUCT_AVAILABLE_TEXT in availability_div.text or\
+                    PRODUCT_RESERVABLE_TEXT in availability_div.text:
                 product.status = ProductStatus.AVAILABLE
             else:
                 product.status = ProductStatus.UNKNOWN

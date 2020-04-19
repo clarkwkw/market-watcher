@@ -9,6 +9,6 @@ class ProductStatus(enum.Enum):
     NOT_FOUND = "NOT_FOUND"
 
     def __eq__(self, other: Union[str, 'ProductStatus']):
-        if type(other) == 'ProductStatus':
+        if isinstance(other, ProductStatus):
             return self.value == other.value
-        return self.value == other
+        return self.value.upper() == other.upper()

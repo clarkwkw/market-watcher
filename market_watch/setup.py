@@ -1,5 +1,7 @@
 import re
+import ssl
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import pymongo
 from .bot import TelegramBotClient
 from .transport import DatabaseTransport
 from .translator import Translator
@@ -28,4 +30,11 @@ def create_tg_updater(token: str):
         token,
         request_kwargs={'read_timeout': 10, 'connect_timeout': 10},
         use_context=True
+    )
+
+
+def create_mongo_client(uri: str):
+    return pymongo.MongoClient(
+        uri,
+        ssl_cert_reqs=ssl.CERT_NONE
     )

@@ -1,12 +1,13 @@
 import json
 import telegram
 import logging
-from ..setup_bot import create_tg_bot_client, create_tg_updater
+from ..setup import create_tg_bot_client, create_tg_updater
 from ..transport import DatabaseTransportImpl
 from ..translator import Translator
 from .response import OK_RESPONSE, ERROR_RESPONSE
 from ..config import construct_config_from_env
 from ..utils import configure_logger
+from ..setup import create_mongo_client
 
 configure_logger()
 logger = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ def telegram_message_handler(event, context, config=None):
         config = construct_config_from_env()
 
     database = DatabaseTransportImpl(
-        config["mongo_uri"],
+        create_mongo_client(config["mongo_uri"]),
         config["mongo_db_name"]
     )
     client, updater = create_tg_bot_client(

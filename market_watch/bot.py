@@ -1,5 +1,6 @@
 import telegram
-from typing import List
+import telegram.ext
+from typing import List, Mapping
 from .models import User, ProductRef, ProductStatus
 from .transport import DatabaseTransport
 from .translator import Translator, MessageID
@@ -38,7 +39,7 @@ class TelegramBotClient:
         self.database = database
         self.translator = translator
 
-    def get_or_create_user(self, id: str) -> User:
+    def _get_or_create_user(self, id: str) -> User:
         user = self.database.get_user(id)
         if user is None:
             user = User(id)
@@ -58,15 +59,19 @@ class TelegramBotClient:
             parse_mode=telegram.ParseMode.HTML
         )
 
-    def send_message_str(
+    def send_messages(
         self,
         tg_bot: telegram.Bot,
         chat_id: str,
-        message: str
+        messages: Mapping[MessageID, dict]
     ):
+        message_strs = [
+            self.translator.translate(id, **kwargs)
+            for id, kwargs in messages.items()
+        ]
         tg_bot.send_message(
             chat_id,
-            message,
+            "".join(message_strs),
             parse_mode=telegram.ParseMode.HTML
         )
 
@@ -75,7 +80,7 @@ class TelegramBotClient:
         tg_update: telegram.Update,
         tg_context: telegram.ext.CallbackContext
     ):
-        user = self.get_or_create_user(tg_update.message.chat.id)
+        user = self._get_or_create_user(tg_update.message.chat.id)
         self.send_message(tg_context.bot, user.chat_id, MessageID.HELLO)
 
     @handle_excpetion
@@ -84,7 +89,8 @@ class TelegramBotClient:
         tg_update: telegram.Update,
         tg_context: telegram.ext.CallbackContext
     ):
-        user = self.get_or_create_user(tg_update.message.chat.id)
+        print("hello")
+        user = self._get_or_create_user(tg_update.message.chat.id)
         product_refs = utils.parse_product_list_input(
             tg_context.matches[0].group(1)
         )
@@ -109,31 +115,34 @@ class TelegramBotClient:
             self.database.get_products_by_refs(product_refs)
         }
         for user in subscribed_users:
-            message = self.translator.translate(
-                MessageID.PRODUCT_NOTIFY_HEADER
-            )
+            messages = []
+            messages.append((
+                MessageID.PRODUCT_NOTIFY_HEADER, {}
+            ))
             for product_refs in user.subscribed:
                 if product_refs not in products:
                     continue
                 updated_product = products[product_refs]
                 if updated_product.status == ProductStatus.NOT_FOUND\
                         or updated_product.status == ProductStatus.UNKNOWN:
-                    message += self.translator.translate(
+                    messages.append((
                         MessageID.PRODUCT_NOTIFY_NOT_FOUND,
-                        platform=updated_product.platform.value,
-                        id=updated_product.id
-                    )
+                        {
+                            "platform": updated_product.platform.value,
+                            "id": updated_product.id
+                        }
+                    ))
                 else:
                     url = all_crawlers_map[updated_product.platform]\
                         .get_product_url(updated_product.id)
-                    message += self.translator.translate(
+                    messages.append((
                         MessageID.PRODUCT_NOTIFY_UPDATED,
-                        url=url,
-                        platform=updated_product.platform.value,
-                        name=updated_product.name,
-                        status=updated_product.status.value
-                    )
-            message += self.translator.translate(
-                MessageID.PRODUCT_NOTIFY_FOOTER
-            )
-            self.send_message_str(tg_bot, user.chat_id, message)
+                        {
+                            "url": url,
+                            "platform": updated_product.platform.value,
+                            "name": updated_product.name,
+                            "status": updated_product.status.value
+                        }
+                    ))
+            messages.append((MessageID.PRODUCT_NOTIFY_FOOTER, {}))
+            self.send_messages(tg_bot, user.chat_id, messages)

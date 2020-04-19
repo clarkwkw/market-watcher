@@ -59,6 +59,8 @@ package:
   include:
     - market_watch/**
     - config/**
+  exclude:
+    - market_watch/test
 
 functions:
   market-watch-crawler:
