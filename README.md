@@ -1,4 +1,7 @@
 # Market Watcher
+
+[![Build Status](https://travis-ci.com/clarkwkw/market-watcher.svg?branch=master)](https://travis-ci.com/clarkwkw/market-watcher)
+
 This is an application for monitoring products on e-commerce and notifying users when products become available.
 
 
