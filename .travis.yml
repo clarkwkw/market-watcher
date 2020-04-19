@@ -8,7 +8,8 @@ services:
 jobs:
   include:
     - stage: test
-      pip install -r requirements.txt && pip install -r requirements-test.txt
+      name: lint, type check and test
+      install: pip install -r requirements.txt && pip install -r requirements-test.txt
       script:
         - flake8 market_watch
         - mypy --ignore-missing-imports market_watch
