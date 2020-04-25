@@ -1,3 +1,4 @@
+import logging
 import math
 import telegram
 import telegram.ext
@@ -8,6 +9,9 @@ from .translator import Translator, MessageID
 from .exceptions import MWException, InvalidInputException
 from .crawlers import all_crawlers_map
 from . import utils
+
+utils.configure_logger()
+logger = logging.getLogger(__name__)
 
 NON_SPACE_INPUT = "[^\\s]+"
 PRODUCT_SUBSCIBE_REGEX = f"^\\s*/{NON_SPACE_INPUT}\\s+(.*)"
@@ -136,6 +140,7 @@ class TelegramBotClient:
         tg_context: telegram.ext.CallbackContext
     ):
         user = self._get_or_create_user(tg_update.message.chat.id)
+        logging.info(f"Creating user {user.chat_id}")
         self.send_message(tg_context.bot, user.chat_id, MessageID.HELLO)
 
     @handle_excpetion
@@ -145,6 +150,7 @@ class TelegramBotClient:
         tg_context: telegram.ext.CallbackContext
     ):
         user = self._get_or_create_user(tg_update.message.chat.id)
+        logging.info(f"subscribing products for user {user.chat_id}")
         product_refs = utils.parse_product_list_input(
             tg_context.matches[0].group(1)
         )
@@ -157,6 +163,7 @@ class TelegramBotClient:
         self.send_message(tg_context.bot, user.chat_id,
                           MessageID.PRODUCT_SUBSCRIBED,
                           n_subscribed=n_subscribed)
+        logging.info(f"Subscribed {n_subscribed}")
 
     def notify_status_update(
         self,
@@ -225,7 +232,17 @@ class TelegramBotClient:
             subscribed_index = user.subscribed.index(product_ref)
         except ValueError:
             raise InvalidInputException(MessageID.NOT_SUBSCRIBED)
-        user.subscribed.pop(subscribed_index)
+
+        logging.info(
+            f"Unsubscribing user {user.chat_id} from "
+            f"{product_ref.platform.value} - {product_ref.id}"
+        )
+        logging.info(f"Current subscribed products: {len(user.subscribed)}")
+        removed_pr = user.subscribed.pop(subscribed_index)
+        logging.info(
+            f"Removing product_ref "
+            f"{removed_pr.platform.value} - {removed_pr.id}"
+        )
         self.database.save_user(user)
         tg_update.callback_query.answer(
             self.translator.translate(MessageID.UNSUBSCRIBED)
@@ -240,6 +257,7 @@ class TelegramBotClient:
             messages,
             keyboard=keyboard
         )
+    logging.info(f"Unsubscribed")
 
     @handle_excpetion
     def list_product(
@@ -261,6 +279,9 @@ class TelegramBotClient:
                 return
 
         user = self._get_or_create_user(chat_id)
+        logging.info(
+            f"Listing products for user {user.chat_id}, offset = {offset}"
+        )
         messages, keyboard = self._generate_subscribed_list_and_navigations(
             user, offset
         )
