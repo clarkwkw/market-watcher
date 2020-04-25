@@ -31,16 +31,24 @@ def _crawl_products(
     for cls in all_crawlers:
         crawlers[cls.platform] = cls(http_transport)
 
-    logging.info(f"Assigned {len(product_refs)} products.")
+    logging.info(
+        f"Assigned {len(product_refs)} products: "
+        f"{[pr.id for pr in product_refs]}."
+    )
     products = db_transport.get_products_by_refs(
         product_refs,
         return_default_if_not_found=True
     )
-    logging.info(f"Retrieved {len(products)} products from database.")
+    logging.info(
+        f"Retrieved {len(products)} products from database: "
+        f"{[p.id for p in products]}."
+    )
     product_refs_to_notify = []
     updated_products = []
     for p in products:
-        sleep(random.uniform(1, 2.5))
+        secs = random.uniform(1, 2.5)
+        logging.info(f"Sleeping {secs} secs.")
+        sleep(secs)
         updated = crawlers[p.platform].get_product(p.id)
         if updated.status != ProductStatus.UNKNOWN\
                 and p.status != updated.status:
