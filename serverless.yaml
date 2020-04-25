@@ -68,7 +68,7 @@ functions:
     environment: *_lambda_env
     events:
       - sqs:
-          batchSize: 10
+          batchSize: 6
           arn:
             Fn::GetAtt:
               - ProductDistributeQueue
