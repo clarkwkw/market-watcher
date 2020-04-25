@@ -71,5 +71,10 @@ def crawl_products_handler(event, context, config=None):
         "Market-Watch-Product-Notify"
     )
 
-    _crawl_products(db_transport, http_transport, message_queue)
+    _crawl_products(
+        db_transport,
+        http_transport,
+        message_queue,
+        MessageQueueImpl.deserialize(event)
+    )
     return OK_RESPONSE
