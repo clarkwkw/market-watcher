@@ -1,6 +1,12 @@
 import re
 import ssl
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import (
+    Updater,
+    CommandHandler,
+    MessageHandler,
+    Filters,
+    CallbackQueryHandler
+)
 import pymongo
 from .bot import TelegramBotClient
 from .transport import DatabaseTransport
@@ -18,9 +24,17 @@ def create_tg_bot_client(
         "start",
         client.create_user
     ))
+    updater.dispatcher.add_handler(CommandHandler(
+        "list",
+        client.list_product
+    ))
     updater.dispatcher.add_handler(MessageHandler(
         Filters.regex(re.compile(r"^\s*/subscribe([\s\n].*)?$", re.DOTALL)),
         client.subscibe_product
+    ))
+    updater.dispatcher.add_handler(CallbackQueryHandler(
+        client.unsubscribe,
+        pattern=Filters.regex(re.compile(r"^/unsubscribe.*$", re.DOTALL)),
     ))
     return client, updater
 
