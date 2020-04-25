@@ -241,20 +241,17 @@ class TelegramBotClient:
     ):
         chat_id = None
         edit_message_id = None
+        offset = 0
         if tg_update.message is not None:
             chat_id = tg_update.message.chat.id
         else:
             chat_id = tg_update.callback_query.message.chat_id
             edit_message_id = tg_update.callback_query.message.message_id
+            command, offset = tg_context.data.split(" ")
+            if command != "/list":
+                return
 
         user = self._get_or_create_user(chat_id)
-        args = tg_context.args
-        offset = 0
-        if len(args) == 1:
-            try:
-                offset = int(args[0])
-            except Exception:
-                pass
         messages, keyboard = self._generate_subscribed_list_and_navigations(
             user, offset
         )

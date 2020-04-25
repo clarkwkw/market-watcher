@@ -28,6 +28,10 @@ def create_tg_bot_client(
         "list",
         client.list_product
     ))
+    updater.dispatcher.add_handler(CallbackQueryHandler(
+        client.list_product,
+        pattern=re.compile(r"^/list.*$", re.DOTALL),
+    ))
     updater.dispatcher.add_handler(MessageHandler(
         Filters.regex(re.compile(r"^\s*/subscribe([\s\n].*)?$", re.DOTALL)),
         client.subscibe_product
