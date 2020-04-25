@@ -203,7 +203,8 @@ class TelegramBotClient:
             tg_update.callback_query.message.chat_id
         )
 
-        command, raw_platform, raw_id = tg_context.data.split(" ")
+        command, raw_platform, raw_id = tg_update.callback_query.data.split(
+            " ")
         if command != "/unsubscribe":
             return
 
@@ -247,7 +248,7 @@ class TelegramBotClient:
         else:
             chat_id = tg_update.callback_query.message.chat_id
             edit_message_id = tg_update.callback_query.message.message_id
-            command, offset = tg_context.data.split(" ")
+            command, offset = tg_update.callback_query.data.split(" ")
             if command != "/list":
                 return
 
