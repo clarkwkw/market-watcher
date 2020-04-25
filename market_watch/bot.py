@@ -314,13 +314,10 @@ class TelegramBotClient:
             st_index + SUBSCRIBED_LIST_PAGE_SIZE,
             len(user.subscribed)
         )
-        logging.info(
-            f"Generating subscribed list: offset={offset}, "
-            f"st_index={st_index}, ed_index={ed_index}, "
-            f"n_subscribed={len(user.subscribed)}"
-        )
+
         products = self.database.get_products_by_refs(
-            user.subscribed[st_index:ed_index]
+            user.subscribed[st_index:ed_index],
+            return_default_if_not_found=True
         )
         if len(products) == 0:
             return [(MessageID.PRODUCT_LIST_EMPTY, {})], None
