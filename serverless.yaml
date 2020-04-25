@@ -37,6 +37,7 @@ provider:
   name: aws
   runtime: python3.6
   region: ${env:MARKET_WATCH_AWS_REGION_NAME}
+  timeout: 30
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
