@@ -1,11 +1,16 @@
 from bs4 import BeautifulSoup
+import logging
 from .crawler_base import CrawlerBase
 from ..models import Product, Platform, ProductStatus, ProductRef
 from ..transport import HTTPTransport
+from ..utils import configure_logger
 
+
+configure_logger()
+logger = logging.getLogger(__name__)
 
 PRODUCT_URL_BASE = "https://www.amazon.co.jp/dp/{product_id}/"
-PRODUCT_UNAVAILABLE_TEXT = "在庫切れ"
+PRODUCT_UNAVAILABLE_TEXTS = ["在庫切れ", "取り扱いできません"]
 PRODUCT_AVAILABLE_TEXT = "在庫あり"
 PRODUCT_RESERVABLE_TEXT = "出品者からお求めいただけます"
 NOT_FOUND_LINK = "/ref=cs_404_logo"
@@ -24,16 +29,18 @@ class AmazonJPCrawler(CrawlerBase):
         product = Product(ProductRef(self.platform, id))
 
         if availability_div is not None:
+            logging.info("availability text: {availability_div.text}")
             product_name_span = soup.find(id='productTitle')
             if product_name_span is not None:
                 product.name = product_name_span.text.strip()
-            if PRODUCT_UNAVAILABLE_TEXT in availability_div.text:
-                product.status = ProductStatus.UNAVAILABLE
-            elif PRODUCT_AVAILABLE_TEXT in availability_div.text or\
+
+            for unavailable_text in PRODUCT_UNAVAILABLE_TEXTS:
+                if unavailable_text in availability_div.text:
+                    product.status = ProductStatus.UNAVAILABLE
+
+            if PRODUCT_AVAILABLE_TEXT in availability_div.text or\
                     PRODUCT_RESERVABLE_TEXT in availability_div.text:
                 product.status = ProductStatus.AVAILABLE
-            else:
-                product.status = ProductStatus.UNKNOWN
         else:
             links = soup.find_all('a')
             for link in links:
