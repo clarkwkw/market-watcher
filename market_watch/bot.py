@@ -239,7 +239,15 @@ class TelegramBotClient:
         tg_update: telegram.Update,
         tg_context: telegram.ext.CallbackContext
     ):
-        user = self._get_or_create_user(tg_update.message.chat.id)
+        chat_id = None
+        edit_message_id = None
+        if tg_update.message is not None:
+            chat_id = tg_update.message.chat.id
+        else:
+            chat_id = tg_update.callback_query.message.chat_id
+            edit_message_id = tg_update.callback_query.message.message_id
+
+        user = self._get_or_create_user(chat_id)
         args = tg_context.args
         offset = 0
         if len(args) == 1:
@@ -250,12 +258,21 @@ class TelegramBotClient:
         messages, keyboard = self._generate_subscribed_list_and_navigations(
             user, offset
         )
-        self.send_messages(
-            tg_context.bot,
-            user.chat_id,
-            messages,
-            keyboard=keyboard
-        )
+        if edit_message_id is None:
+            self.send_messages(
+                tg_context.bot,
+                user.chat_id,
+                messages,
+                keyboard=keyboard
+            )
+        else:
+            self.update_with_messages(
+                tg_context.bot,
+                user.chat_id,
+                edit_message_id,
+                messages,
+                keyboard=keyboard
+            )
 
     def _generate_subscribed_list_and_navigations(
         self,
