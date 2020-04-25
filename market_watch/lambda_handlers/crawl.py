@@ -40,7 +40,7 @@ def _crawl_products(
     product_refs_to_notify = []
     updated_products = []
     for p in products:
-        sleep(random.random.uniform(1, 2.5))
+        sleep(random.uniform(1, 2.5))
         updated = crawlers[p.platform].get_product(p.id)
         if updated.status != ProductStatus.UNKNOWN\
                 and p.status != updated.status:
