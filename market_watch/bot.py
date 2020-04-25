@@ -27,12 +27,19 @@ def handle_excpetion(func):
         try:
             return func(bot_client, tg_update, tg_context)
         except MWException as e:
-            bot_client.send_message(
-                tg_context.bot,
-                tg_update.message.chat.id,
-                e.exception_message,
-                **e.exception_message_args
-            )
+            chat_id = None
+            if tg_update.message is not None:
+                chat_id = tg_update.message.chat.id
+            elif tg_update.callback_query is not None:
+                chat_id = tg_update.callback_query.message.chat_id
+
+            if chat_id is not None:
+                bot_client.send_message(
+                    tg_context.bot,
+                    tg_update.message.chat.id,
+                    e.exception_message,
+                    **e.exception_message_args
+                )
     return wrapped
 
 
@@ -297,7 +304,7 @@ class TelegramBotClient:
                 {
                     "i": i + 1,
                     "url": all_crawlers_map[p.platform].get_product_url(p.id),
-                    "platform": p.platform,
+                    "platform": p.platform.value,
                     "name": p.name,
                     "status": p.status.value
                 }
@@ -329,6 +336,6 @@ class TelegramBotClient:
         for i, p in enumerate(products):
             keyboard[1].append((
                 (MessageID.BUTTON_REMOVE, {"id": i+1}),
-                f"/unsubscribe {p.platform} {p.id}"
+                f"/unsubscribe {p.platform.value} {p.id}"
             ))
         return messages, keyboard
