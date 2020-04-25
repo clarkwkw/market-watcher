@@ -258,7 +258,7 @@ class TelegramBotClient:
             messages,
             keyboard=keyboard
         )
-    logging.info(f"Unsubscribed")
+        logging.info(f"Unsubscribed")
 
     @handle_excpetion
     def list_product(
