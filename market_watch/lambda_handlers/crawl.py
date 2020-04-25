@@ -57,7 +57,7 @@ def _crawl_products(
     message_queue.enqueue(product_refs_to_notify)
 
 
-def crawl_products_handler(event, context, config):
+def crawl_products_handler(event, context, config=None):
     if config is None:
         config = construct_config_from_env()
 
