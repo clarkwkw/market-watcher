@@ -19,7 +19,8 @@ EN = {
     MessageID.BUTTON_LAST: ">|",
     MessageID.BUTTON_REMOVE: "❌ {id}",
     MessageID.NOT_SUBSCRIBED: "You haven't subscribed to the product",
-    MessageID.UNSUBSCRIBED: "Successfully unsubscribed"
+    MessageID.UNSUBSCRIBED: "Successfully unsubscribed",
+    MessageID.INTEGER_WITH_BRACKETS: "[{value:d}]"
 }
 
 LANGUAGES = {

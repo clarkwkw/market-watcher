@@ -11,7 +11,8 @@ from . import utils
 
 NON_SPACE_INPUT = "[^\\s]+"
 PRODUCT_SUBSCIBE_REGEX = f"^\\s*/{NON_SPACE_INPUT}\\s+(.*)"
-SUBSCRIBED_LIST_PAGE_SIZE = 10
+SUBSCRIBED_LIST_PAGE_SIZE = 5
+SUBSCRIBED_LIST_NEIGHBOR_PAGES = 2
 Message = Tuple[MessageID, Dict[str, Any]]
 Messages = List[Message]
 Keyboard = List[List[Tuple[Message, str]]]
@@ -292,9 +293,16 @@ class TelegramBotClient:
                 (MessageID.BUTTON_FIRST, {}),
                 f"/list 0"
             ))
-        for i in range(n_pages):
+        for i in range(
+            max(offset-SUBSCRIBED_LIST_NEIGHBOR_PAGES, 0),
+            min(offset+SUBSCRIBED_LIST_NEIGHBOR_PAGES+1, n_pages)
+        ):
             keyboard[0].append((
-                (MessageID.INTEGER, {"value": i}),
+                (
+                    MessageID.INTEGER if i != offset else
+                    MessageID.INTEGER_WITH_BRACKETS,
+                    {"value": i+1}
+                ),
                 f"/list {i}"
             ))
         if offset != n_pages - 1:
