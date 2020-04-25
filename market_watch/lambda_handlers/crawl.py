@@ -50,6 +50,7 @@ def _crawl_products(
         logging.info(f"Sleeping {secs} secs.")
         sleep(secs)
         updated = crawlers[p.platform].get_product(p.id)
+        logging.info(f"{p.id}: {p.status.value}")
         if updated.status != ProductStatus.UNKNOWN\
                 and p.status != updated.status:
             # preserve original name if blocked marketplace
