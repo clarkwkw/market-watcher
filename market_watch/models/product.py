@@ -20,6 +20,7 @@ class Product:
     def from_dict(cls, d: dict):
         p = cls(ProductRef.from_dict(d["_id"]))
         p.status = ProductStatus(d.get("status", "UNKNOWN"))
+        p.name = d["name"]
         return p
 
     def __eq__(self, other: object):
