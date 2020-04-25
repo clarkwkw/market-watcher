@@ -34,7 +34,7 @@ def create_tg_bot_client(
     ))
     updater.dispatcher.add_handler(CallbackQueryHandler(
         client.unsubscribe,
-        pattern=Filters.regex(re.compile(r"^/unsubscribe.*$", re.DOTALL)),
+        pattern=re.compile(r"^/unsubscribe.*$", re.DOTALL),
     ))
     return client, updater
 
