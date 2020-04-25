@@ -118,6 +118,7 @@ class TelegramBotClient:
             self._convert_messages_to_str(messages),
             chat_id=chat_id,
             message_id=message_id,
+            parse_mode=telegram.ParseMode.HTML,
             reply_markup=self._convert_keyboard_to_tg_keyboard(keyboard)
             if keyboard is not None else None
         )
