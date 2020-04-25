@@ -287,7 +287,7 @@ class TelegramBotClient:
     ) -> Tuple[Messages, Optional[Keyboard]]:
         st_index = offset*SUBSCRIBED_LIST_PAGE_SIZE
         if st_index >= len(user.subscribed):
-            st_index = 0
+            st_index = math.floor((len(user.subscribed) - 1)/SUBSCRIBED_LIST_PAGE_SIZE)*SUBSCRIBED_LIST_PAGE_SIZE  # noqa:E501
         ed_index = min(
             st_index + SUBSCRIBED_LIST_PAGE_SIZE,
             len(user.subscribed)
