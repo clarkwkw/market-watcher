@@ -12,7 +12,7 @@ EN = {
     MessageID.PRODUCT_LIST_HEADER: "You have subscribed to:\n\n",
     MessageID.PRODUCT_LIST_ITEM: "[{i}] <a href='{url}'>{platform} - {name}</a>: {status}\n\n",
     MessageID.PRODUCT_LIST_EMPTY: "You haven't subscribed to any product",
-    MessageID.PRODUCT_NOTIFY_NOT_FOUND: "- {platform}-{id}: Not found\n",
+    MessageID.PRODUCT_NOTIFY_NOT_FOUND: "- <a href='{url}'>{platform}-{id}</a>: Not found\n",
     MessageID.PRODUCT_NOTIFY_FOOTER: "",
     MessageID.INTEGER: "{value:d}",
     MessageID.BUTTON_FIRST: "|<",

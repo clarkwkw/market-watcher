@@ -269,6 +269,7 @@ class TestProduct(unittest.TestCase):
                         "status": ProductStatus.AVAILABLE.value
                     }),
                     (MessageID.PRODUCT_NOTIFY_NOT_FOUND, {
+                        "url": ANY,
                         "platform": Platform.AMAZON_JP.value,
                         "id": "pr_3"
                     }),

@@ -184,18 +184,19 @@ class TelegramBotClient:
                 if product_ref not in products:
                     continue
                 updated_product = products[product_ref]
+                url = all_crawlers_map[updated_product.platform]\
+                    .get_product_url(updated_product.id)
                 if updated_product.status == ProductStatus.NOT_FOUND\
                         or updated_product.status == ProductStatus.UNKNOWN:
                     messages.append((
                         MessageID.PRODUCT_NOTIFY_NOT_FOUND,
                         {
                             "platform": updated_product.platform.value,
-                            "id": updated_product.id
+                            "id": updated_product.id,
+                            "url": url
                         }
                     ))
                 else:
-                    url = all_crawlers_map[updated_product.platform]\
-                        .get_product_url(updated_product.id)
                     messages.append((
                         MessageID.PRODUCT_NOTIFY_UPDATED,
                         {
