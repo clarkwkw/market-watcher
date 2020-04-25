@@ -217,7 +217,7 @@ class TelegramBotClient:
         user = self._get_or_create_user(
             tg_update.callback_query.message.chat_id
         )
-
+        logging.info(f"Callback data: {tg_update.callback_query.data}")
         command, raw_platform, raw_id = tg_update.callback_query.data.split(" ")  # noqa: E501
         if command != "/unsubscribe":
             return
@@ -271,6 +271,7 @@ class TelegramBotClient:
         if tg_update.message is not None:
             chat_id = tg_update.message.chat.id
         else:
+            logging.info(f"Callback data: {tg_update.callback_query.data}")
             chat_id = tg_update.callback_query.message.chat_id
             edit_message_id = tg_update.callback_query.message.message_id
             command, offset = tg_update.callback_query.data.split(" ")
