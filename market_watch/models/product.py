@@ -26,6 +26,8 @@ class Product:
     def __eq__(self, other: object):
         if isinstance(other, Product):
             return self.product_ref == other.product_ref
+        if isinstance(other, ProductRef):
+            return self.product_ref == other
         return NotImplemented
 
     def to_dict(self) -> dict:
