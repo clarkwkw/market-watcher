@@ -1,0 +1,89 @@
+# Use https://sequencediagram.org/ to edit
+
+title market watch sequence diagram
+actor User
+participant Telegram
+participant AWS API Gateway
+participant Telegram Message Handler
+database Mongo DB
+participant Crawler Workload Distributor
+participant Crawler
+participant Notification Worker
+control Cloudwatch Scheduler
+
+==Create user==
+User->Telegram: /start
+Telegram->AWS API Gateway:
+activate Telegram Message Handler
+AWS API Gateway->Telegram Message Handler:
+Telegram Message Handler->Mongo DB: Retrieve/Create user
+Telegram Message Handler<-Mongo DB: Return user
+User<-Telegram Message Handler: Send greeting
+AWS API Gateway<-Telegram Message Handler: Return OK reponse
+deactivate Telegram Message Handler
+Telegram<-AWS API Gateway:
+
+==Subscribe to products==
+User->Telegram: /subscribe
+Telegram->AWS API Gateway:
+AWS API Gateway->Telegram Message Handler:
+activate Telegram Message Handler
+Telegram Message Handler->Telegram Message Handler: Validate input
+Telegram Message Handler->Mongo DB: Retrieve/Create user
+Mongo DB->Telegram Message Handler: Return user
+Telegram Message Handler->Mongo DB: Update user with products to subscribe
+Mongo DB->Telegram Message Handler: Acknowledge
+Telegram Message Handler->User: Confirm subscription
+Telegram Message Handler->AWS API Gateway: Return OK response
+deactivate Telegram Message Handler
+AWS API Gateway->Telegram:
+
+==Unsubscribe from products==
+User->Telegram: /list
+Telegram->AWS API Gateway:
+AWS API Gateway->Telegram Message Handler:
+activate Telegram Message Handler
+Telegram Message Handler->Mongo DB: Retrieve/Create user
+Mongo DB->Telegram Message Handler: Return user
+Telegram Message Handler->User: List of subscribed products with callback buttons
+Telegram Message Handler->AWS API Gateway: Return OK response
+deactivate Telegram Message Handler
+AWS API Gateway->Telegram:
+User->Telegram: Click a callback button
+Telegram->AWS API Gateway:
+AWS API Gateway->Telegram Message Handler:
+activate Telegram Message Handler
+Telegram Message Handler->Mongo DB: Retrieve/Create user
+Mongo DB->Telegram Message Handler: Return user
+Telegram Message Handler->Telegram Message Handler: Remove product from subscription list
+Telegram Message Handler->Mongo DB: Persist updated user
+Telegram Message Handler->User: Confirm unsubscription
+Telegram Message Handler->AWS API Gateway: Return OK response
+deactivate Telegram Message Handler
+AWS API Gateway->Telegram:
+
+==Crawl product webpage==
+Cloudwatch Scheduler->Crawler Workload Distributor:
+activate Crawler Workload Distributor
+Crawler Workload Distributor->Mongo DB: Retrieve subscribed products
+Mongo DB->Crawler Workload Distributor: Return subscribed products
+Crawler Workload Distributor->Crawler: Push message queue to spawn crawlers
+deactivate Crawler Workload Distributor
+activate Crawler
+Crawler->Crawler: Crawl product information
+Crawler->Mongo DB: Persist latest product information
+Crawler->Notification Worker: Push notifiable products to message queue
+deactivate Crawler
+activate Notification Worker
+Notification Worker->User: Notify user
+deactivate Notification Worker
+
+
+
+
+
+
+
+
+
+
