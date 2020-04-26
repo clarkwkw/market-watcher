@@ -40,7 +40,7 @@ def handle_excpetion(func):
             if chat_id is not None:
                 bot_client.send_message(
                     tg_context.bot,
-                    tg_update.message.chat.id,
+                    chat_id,
                     e.exception_message,
                     **e.exception_message_args
                 )
@@ -70,10 +70,18 @@ class TelegramBotClient:
         message_id: MessageID,
         **kwargs
     ):
-        tg_bot.send_message(
-            chat_id,
-            self.translator.translate(message_id, **kwargs),
-            parse_mode=telegram.ParseMode.HTML
+        self.send_messages(tg_bot, chat_id, [(message_id, kwargs)])
+
+    def answer_query(
+        self,
+        tg_bot: telegram.Bot,
+        query_id: str,
+        message_id: MessageID,
+        **kwargs
+    ):
+        tg_bot.answer_callback_query(
+            query_id,
+            text=self._convert_messages_to_str([(message_id, kwargs)])
         )
 
     def _convert_messages_to_str(
@@ -245,8 +253,10 @@ class TelegramBotClient:
             f"{removed_pr.platform.value} - {removed_pr.id}"
         )
         self.database.save_user(user)
-        tg_update.callback_query.answer(
-            self.translator.translate(MessageID.UNSUBSCRIBED)
+        self.answer_query(
+            tg_context.bot,
+            tg_update.callback_query.id,
+            MessageID.UNSUBSCRIBED
         )
         messages, keyboard = self._generate_subscribed_list_and_navigations(
             user, subscribed_index//SUBSCRIBED_LIST_PAGE_SIZE
