@@ -13,7 +13,7 @@ jobs:
       script:
         - flake8 market_watch
         - mypy --ignore-missing-imports market_watch
-        - python -m pytest market_watch
+        - python -m pytest market_watch --cov=market_watch/ --cov-config=.coveragerc
     - stage: deploy
       name: 'Package code and dependency into a zip file and deploy'
       script:
