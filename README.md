@@ -6,7 +6,7 @@ This is an application for monitoring products on e-commerce and notifying users
 
 ## Design
 
-![Sequence diagram](market-watch-sequence.png)
+![Sequence diagram](docs/market-watch-sequence.png)
 
 Everything is hosted at AWS Lambda because AWS provides free compute time every month.
 
