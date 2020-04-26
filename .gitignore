@@ -8,3 +8,4 @@
 /.serverless
 /py36
 .mypy_cache
+.coverage
