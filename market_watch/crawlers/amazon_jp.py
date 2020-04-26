@@ -29,7 +29,7 @@ class AmazonJPCrawler(CrawlerBase):
         product = Product(ProductRef(self.platform, id))
 
         if availability_div is not None:
-            logging.info("availability text: {availability_div.text}")
+            logging.info(f"availability text: {availability_div.text}")
             product_name_span = soup.find(id='productTitle')
             if product_name_span is not None:
                 product.name = product_name_span.text.strip()
