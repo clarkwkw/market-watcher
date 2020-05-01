@@ -26,18 +26,18 @@ resources:
       Type: 'AWS::SQS::Queue'
       Properties:
         QueueName: 'Market-Watch-Product-Notify'
-        VisibilityTimeout: 180
+        VisibilityTimeout: 300
     ProductDistributeQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
         QueueName: 'Market-Watch-Product-Distribute'
-        VisibilityTimeout: 180
+        VisibilityTimeout: 300
 
 provider:
   name: aws
   runtime: python3.6
   region: ${env:MARKET_WATCH_AWS_REGION_NAME}
-  timeout: 35
+  timeout: 70
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -69,7 +69,7 @@ functions:
     environment: *_lambda_env
     events:
       - sqs:
-          batchSize: 6
+          batchSize: 12
           arn:
             Fn::GetAtt:
               - ProductDistributeQueue
@@ -88,7 +88,7 @@ functions:
     handler: market_watch.lambda_handlers.distribute_products_handler
     environment: *_lambda_env
     events:
-      - schedule: rate(5 minutes)
+      - schedule: rate(10 minutes)
   product_update_handler:
     handler: market_watch.lambda_handlers.product_update_handler
     events:
